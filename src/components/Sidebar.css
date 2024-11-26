@@ -1,0 +1,72 @@
+.sidebar {
+  width: 200px;
+  background: #2c3e50;
+  color: #ecf0f1;
+  padding: 20px;
+  transition: width 0.4s ease, background 0.3s ease, padding 0.3s ease;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.collapsed {
+  width: 50px;
+  background: #34495e;
+  padding: 10px 0;
+}
+
+.toggle-button {
+  cursor: pointer;
+  font-size: 20px;
+  padding: 10px;
+  text-align: center;
+  color: #ecf0f1;
+  transition: transform 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.toggle-button:hover {
+  color: #1abc9c;
+  transform: rotate(180deg); /* Rotate only 180deg for smoother effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar.collapsed .toggle-button:hover {
+  color: #f39c12; /* Change color on collapsed state */
+}
+
+.letter-item {
+  padding: 15px;
+  cursor: pointer;
+  transition: transform 0.2s, color 0.3s, background-color 0.3s ease, box-shadow 0.2s ease;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.letter-item:hover {
+  background-color: #1abc9c;
+  color: #ecf0f1;
+  transform: scale(1.1); /* Subtle scaling */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.letter-item:focus {
+  outline: none; /* Remove default outline */
+  background-color: #16a085; /* Different background on focus */
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100px;
+  }
+  
+  .letter-item {
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .toggle-button {
+    font-size: 18px;
+  }
+}
