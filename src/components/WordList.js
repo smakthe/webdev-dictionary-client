@@ -1,18 +1,49 @@
 import { useState, useEffect } from 'react';
 import { ClipLoader } from 'react-spinners';
 import debounce from 'lodash.debounce';
+import axios from 'axios';
 import './WordList.css';
-import allWords from '../wordsList.json';
+
+axios.defaults.baseURL = 'http://localhost:3001';
 
 const WordList = ({ selectedLetter }) => {
-  const [words, setWords] = useState([]);
+  const [allWords, setAllWords] = useState([]);
+  const [filteredWords, setFilteredWords] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedWord, setExpandedWord] = useState(null);
 
+  useEffect(() => {
+    const fetchWords = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get('/api/words');
+        setAllWords(response.data);
+        setFilteredWords(response.data);
+      } catch (error) {
+        console.error('Error fetching all words:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchWords();
+  }, []);
+
+  useEffect(() => {
+    if (selectedLetter) {
+      const filtered = allWords.filter((wordObj) =>
+        wordObj.word.toLowerCase().startsWith(selectedLetter.toLowerCase())
+      );
+      setFilteredWords(filtered);
+    } else {
+      setFilteredWords(allWords);
+    }
+  }, [selectedLetter, allWords]);
+
   const debouncedSearch = debounce((query) => {
     setSearchQuery(query);
-  }, 200);
+  }, 50);
 
   const handleSearch = (e) => {
     debouncedSearch(e.target.value);
@@ -22,9 +53,10 @@ const WordList = ({ selectedLetter }) => {
     setSearchQuery('');
   };
 
-  const filteredWords = words.filter((wordObj) =>
-    wordObj.word.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    wordObj.definition.toLowerCase().includes(searchQuery.toLowerCase())
+  const searchedWords = filteredWords.filter(
+    (wordObj) =>
+      wordObj.word.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      wordObj.definition.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleWordClick = (word) => {
@@ -37,21 +69,6 @@ const WordList = ({ selectedLetter }) => {
     return text.replace(regex, (match) => `<mark>${match}</mark>`);
   };
 
-  useEffect(() => {
-    if (selectedLetter) {
-      setIsLoading(true);
-      setTimeout(() => {
-        const fetchedWords = allWords[selectedLetter] || [];
-        setWords(fetchedWords);
-        setIsLoading(false);
-      }, 500);
-    }
-  }, [selectedLetter]);
-
-  if (!selectedLetter) {
-    return <div className="wordlist">Please select a letter from the sidebar.</div>;
-  }
-
   if (isLoading) {
     return (
       <div className="wordlist">
@@ -60,17 +77,16 @@ const WordList = ({ selectedLetter }) => {
     );
   }
 
-  if (filteredWords.length === 0) {
+  if (searchedWords.length === 0) {
     return (
       <div className="wordlist wordlist-no-words">
-        No words found for "{selectedLetter}".
+        No words match your search.
       </div>
     );
   }
 
   return (
     <div className="wordlist">
-      <h2 className="wordlist-heading">Words starting with "{selectedLetter}"</h2>
       <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
         <input
           type="text"
@@ -89,7 +105,7 @@ const WordList = ({ selectedLetter }) => {
         )}
       </div>
       <ul>
-        {filteredWords.map((wordObj) => (
+        {searchedWords.map((wordObj) => (
           <li
             key={wordObj.word}
             className="word-item"
