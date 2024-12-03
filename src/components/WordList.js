@@ -4,7 +4,7 @@ import debounce from 'lodash.debounce';
 import axios from 'axios';
 import './WordList.css';
 
-axios.defaults.baseURL = 'http://localhost:3001';
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND_URL;
 
 const WordList = ({ selectedLetter }) => {
   const [allWords, setAllWords] = useState([]);
